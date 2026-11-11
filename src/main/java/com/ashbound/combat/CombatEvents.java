@@ -94,7 +94,10 @@ public final class CombatEvents {
             state.chainCount = 0;
         }
         if (state.comboTimer > 0) {
-            state.comboTimer--;
+            // the combo clock only runs on the ground, so jump crits don't break the chain
+            if (player.onGround() || player.isInWater()) {
+                state.comboTimer--;
+            }
         } else {
             state.comboStep = 0;
         }

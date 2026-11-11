@@ -153,6 +153,12 @@ public final class ComboFxClient {
         if (hudStep <= 0 || !AshBoundClientConfig.COMBO_HUD.get()) {
             return;
         }
+        // mirror the server: the combo window is paused while airborne
+        LocalPlayer player = mc.player;
+        if (player != null && !player.onGround() && !player.isInWater()) {
+            long frameNanos = (long) (Math.min(deltaTracker.getRealtimeDeltaTicks(), 2f) * 50_000_000L);
+            hudStartNanos += frameNanos;
+        }
         float elapsed = (now - hudStartNanos) / 1.0e9f;
         if (elapsed >= hudDurationSec) {
             hudStep = 0;
