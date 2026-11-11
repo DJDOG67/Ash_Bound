@@ -5,6 +5,7 @@ import java.util.List;
 import com.ashbound.AshBound;
 import com.ashbound.balance.Balance;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -87,7 +88,7 @@ public final class GrabAttack {
         }
         Entity entity = player.level().getEntity(targetId);
         if (!(entity instanceof LivingEntity living) || !living.isAlive() || living instanceof Player
-                || living.getType().is(GRAB_IMMUNE) || living.getBbWidth() > grab.maxWidth() || living.isPassenger()) {
+                || BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(living.getType()).is(GRAB_IMMUNE) || living.getBbWidth() > grab.maxWidth() || living.isPassenger()) {
             return null;
         }
         double distance = player.getEyePosition().distanceTo(living.getBoundingBox().getCenter()) - living.getBbWidth() * 0.5;
