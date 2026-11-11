@@ -1,0 +1,20 @@
+# 줄바꿈: 저장소에는 LF로 저장, 윈도우 배치 파일만 CRLF
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+gradlew text eol=lf
+
+# 바이너리
+*.png binary
+*.jar binary
+*.ogg binary
+
+# 큰 아트 원본은 Git LFS로 관리
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+*.kra filter=lfs diff=lfs merge=lfs -text
+*.tif filter=lfs diff=lfs merge=lfs -text
+*.tiff filter=lfs diff=lfs merge=lfs -text
+art/sketches/** filter=lfs diff=lfs merge=lfs -text
+art/concept/** filter=lfs diff=lfs merge=lfs -text
+art/**/.gitkeep !filter !diff !merge text

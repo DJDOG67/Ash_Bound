@@ -1,0 +1,10 @@
+# Ash_Bound — Claude 작업 지침
+
+- 사용자와는 한국어로 대화한다. 코드 주석과 커밋 메시지는 영어도 괜찮다.
+- 대상: Minecraft 26.3, NeoForge 26.3.x, Java 25. GeckoLib 5.x 사용 (패키지 `com.geckolib`, 1.21.1용 예제 코드는 그대로 쓰지 않는다).
+- 크리에이트 모드에 의존하지 않는다. 회전 동력은 `machinery` 패키지에 자체 구현.
+- 밸런스 수치는 `src/main/resources/data/ashbound/` JSON으로 뺀다. 하드코딩 금지.
+- `art/` 는 아트 원본, `assets/` 는 게임용 결과물. 아트 원본을 assets에 복사하지 않는다.
+- 결정이 바뀌면 `docs/decisions.md` 맨 위에 한 줄 추가한다.
+- 역할: 사용자 = 기획·스케치·모델 다듬기·테스트·수치, Claude = 코드·기술 파일·반복 변형 에셋.
+- 게임 실행(runClient)은 사용자 PC에서만 가능하다. 변경 후에는 사용자가 확인할 테스트 체크리스트를 남긴다.

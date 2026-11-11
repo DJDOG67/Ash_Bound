@@ -1,0 +1,30 @@
+# Gradle
+.gradle/
+build/
+out/
+bin/
+
+# NeoForge / Minecraft run folders
+run/
+runs/
+run-data/
+logs/
+crash-reports/
+
+# IntelliJ / VS Code
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Art temp / backups
+*.tmp
+*.bak
+*~
+art/**/autosave/
