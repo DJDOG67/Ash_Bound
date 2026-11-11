@@ -17,7 +17,7 @@
 
   "_____ 공격 _____": "",
 
-  "_attack_cost": "근접 공격 1회 소모량. 스태미나 0이면 공격 불가 | 기본 12",
+  "_attack_cost": "콤보가 없는 무기(바닐라 검·맨손 등) 공격 1회 소모량. 스태미나 0이면 공격 불가 | 기본 12",
   "attack_cost": 12,
 
   "_____ 구르기 _____": "",
@@ -41,5 +41,19 @@
   "chain_window_ticks": 20,
 
   "_chain_limit": "창 안에서 이 횟수를 넘기면 무적 시간 절반 (구르기 난사 방지) | 기본 3",
-  "chain_limit": 3
+  "chain_limit": 3,
+
+  "_____ 무기 콤보 (직검 등 weapon_types 태그 무기) _____": "",
+
+  "_combo_window_ticks": "이 시간 안에 다음 타를 맞히면 콤보가 이어짐 | 기본 16틱 (0.8초), 추천 12~24",
+  "combo_window_ticks": 16,
+
+  "_combo_damage_multipliers": "1타·2타·3타 피해 배율. 개수 = 콤보 타수 | 기본 [1.0, 1.1, 1.5]",
+  "combo_damage_multipliers": [1.0, 1.1, 1.5],
+
+  "_combo_stamina_costs": "1타·2타·3타 스태미나 소모 (위 배율과 개수 맞추기) | 기본 [12, 12, 18]",
+  "combo_stamina_costs": [12, 12, 18],
+
+  "_combo_finisher_knockback": "마지막 타(피니셔) 넉백 세기. 0이면 없음 | 기본 0.8, 추천 0.4~1.5",
+  "combo_finisher_knockback": 0.8
 }

@@ -4,6 +4,8 @@ import com.ashbound.AshBound;
 import com.ashbound.AshBoundConfig;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -89,6 +91,11 @@ public final class CombatEvents {
         } else {
             state.chainCount = 0;
         }
+        if (state.comboTimer > 0) {
+            state.comboTimer--;
+        } else {
+            state.comboStep = 0;
+        }
 
         StaminaData stamina = player.getData(CombatAttachments.STAMINA);
         float max = balance.maxStamina();
@@ -112,24 +119,74 @@ public final class CombatEvents {
     @SubscribeEvent
     static void onAttack(AttackEntityEvent event) {
         Player player = event.getEntity();
-        if (!enabled() || ignoresStamina(player)) {
+        if (!enabled()) {
             return;
         }
-        if (player instanceof ServerPlayer serverPlayer) {
-            if (!trySpend(serverPlayer, CombatBalanceLoader.get().attackCost())) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            // client side: don't even send the attack when out of stamina
+            if (!ignoresStamina(player) && player.getData(CombatAttachments.STAMINA).current() <= 0f) {
                 event.setCanceled(true);
             }
-        } else if (player.getData(CombatAttachments.STAMINA).current() <= 0f) {
-            // client side: don't even send the attack when out of stamina
-            event.setCanceled(true);
+            return;
         }
+
+        CombatBalance balance = CombatBalanceLoader.get();
+        CombatState state = serverPlayer.getData(CombatAttachments.STATE);
+        state.pendingDamageMultiplier = 1f;
+        state.pendingFinisher = false;
+
+        if (!serverPlayer.getMainHandItem().is(AshBoundItems.STRAIGHT_SWORDS)) {
+            // plain weapon / fist: flat cost, no combo
+            if (!trySpend(serverPlayer, balance.attackCost())) {
+                event.setCanceled(true);
+            }
+            return;
+        }
+
+        // weapon combo: hit 1 -> 2 -> 3 while inside the combo window, then back to 1
+        int length = balance.comboLength();
+        int step = state.comboTimer > 0 ? (state.comboStep % length) + 1 : 1;
+        if (!trySpend(serverPlayer, balance.comboStaminaCosts().get(step - 1))) {
+            event.setCanceled(true);
+            return;
+        }
+        state.comboStep = step;
+        state.comboTimer = balance.comboWindowTicks();
+        state.pendingDamageMultiplier = balance.comboDamageMultipliers().get(step - 1);
+        state.pendingFinisher = step == length && length > 1;
+    }
+
+    /** Applies the combo multiplier / finisher to the hit the player just swung. */
+    private static void applyCombo(LivingIncomingDamageEvent event, ServerPlayer attacker) {
+        CombatState state = attacker.getData(CombatAttachments.STATE);
+        if (state.pendingDamageMultiplier != 1f) {
+            event.setAmount(event.getAmount() * state.pendingDamageMultiplier);
+        }
+        if (state.pendingFinisher) {
+            float strength = CombatBalanceLoader.get().comboFinisherKnockback();
+            float yaw = attacker.getYRot() * Mth.DEG_TO_RAD;
+            event.getEntity().knockback(strength, Mth.sin(yaw), -Mth.cos(yaw));
+            attacker.level().playSound(null, attacker.getX(), attacker.getY(), attacker.getZ(),
+                    SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 1.0f, 0.75f);
+        }
+        state.pendingDamageMultiplier = 1f;
+        state.pendingFinisher = false;
     }
 
     // ---------------------------------------------------------------- i-frames
 
     @SubscribeEvent
     static void onIncomingDamage(LivingIncomingDamageEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || !enabled()) {
+        if (!enabled()) {
+            return;
+        }
+        // outgoing: a player's melee hit -> combo multiplier
+        if (event.getSource().getDirectEntity() instanceof ServerPlayer attacker
+                && event.getSource().getEntity() == attacker) {
+            applyCombo(event, attacker);
+        }
+        // incoming: dodge i-frames
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
         }
         if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {

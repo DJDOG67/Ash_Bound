@@ -7,5 +7,16 @@
   "ashbound.configuration.factions": "Factions & Ecosystem",
   "key.ashbound.dodge": "Dodge Roll",
   "key.category.ashbound.combat": "Ash_Bound Combat",
-  "key.categories.ashbound.combat": "Ash_Bound Combat"
+  "key.categories.ashbound.combat": "Ash_Bound Combat",
+  "item.ashbound.straight_sword": "Straight Sword",
+  "key.ashbound.lock_on": "Lock On",
+  "ashbound.configuration.lockon": "Lock-on",
+  "ashbound.configuration.range": "Lock-on Range",
+  "ashbound.configuration.range.tooltip": "Max distance (blocks) to pick a target. Default 16.",
+  "ashbound.configuration.turnSpeed": "Camera Turn Speed",
+  "ashbound.configuration.turnSpeed.tooltip": "0.1 = lazy, 1.0 = snap. Default 0.35.",
+  "ashbound.configuration.angle": "Pick Angle",
+  "ashbound.configuration.angle.tooltip": "Only targets within this angle of the crosshair. Default 50.",
+  "ashbound.configuration.showTargetBar": "Target Health Bar",
+  "ashbound.configuration.showTargetBar.tooltip": "Show target name and health at the top of the screen."
 }
