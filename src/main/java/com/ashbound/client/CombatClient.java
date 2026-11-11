@@ -1,6 +1,6 @@
 package com.ashbound.client;
 
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import com.ashbound.AshBound;
 import com.ashbound.combat.CombatAttachments;
@@ -35,7 +35,7 @@ public final class CombatClient {
             new KeyMapping.Category(Identifier.fromNamespaceAndPath(AshBound.MODID, "combat"));
 
     public static final KeyMapping DODGE_KEY =
-            new KeyMapping("key.ashbound.dodge", GLFW.GLFW_KEY_LEFT_ALT, CATEGORY);
+            new KeyMapping("key.ashbound.dodge", InputConstants.KEY_LALT, CATEGORY);
 
     // HUD layout (GUI pixels). Bar sits above the health/armor rows, left of center.
     private static final int BAR_WIDTH = 81;
@@ -68,7 +68,7 @@ public final class CombatClient {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         while (DODGE_KEY.consumeClick()) {
-            if (player == null || mc.screen != null) {
+            if (player == null || mc.gui.screen() != null) {
                 continue;
             }
             if (!player.isCreative() && player.getData(CombatAttachments.STAMINA).current() <= 0f) {
@@ -98,7 +98,7 @@ public final class CombatClient {
     private static void renderStamina(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-        if (player == null || mc.options.hideGui || player.isCreative() || player.isSpectator()) {
+        if (player == null || mc.gui.hud.isHidden() || player.isCreative() || player.isSpectator()) {
             return;
         }
         StaminaData stamina = player.getData(CombatAttachments.STAMINA);
