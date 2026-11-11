@@ -23,4 +23,7 @@ public class CombatState {
     public float pendingDamageMultiplier = 1f;
     /** True if the attack that is about to land is a combo finisher. */
     public boolean pendingFinisher;
+    /** Combo step / length of the attack that is about to land (0 = not a combo weapon). */
+    public int pendingStep;
+    public int pendingLength;
 }

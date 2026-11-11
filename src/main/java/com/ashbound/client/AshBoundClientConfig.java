@@ -32,6 +32,27 @@ public final class AshBoundClientConfig {
 
     static {
         BUILDER.pop();
+        BUILDER.comment("Hit feel and combo effects").push("effects");
+    }
+
+    public static final ModConfigSpec.BooleanValue COMBO_HUD = BUILDER
+            .comment("Show combo pips under the crosshair.")
+            .define("comboHud", true);
+
+    public static final ModConfigSpec.DoubleValue SCREEN_SHAKE = BUILDER
+            .comment("Camera shake strength on hits. 0 = off, 1 = default, 2 = heavy.")
+            .defineInRange("screenShake", 1.0, 0.0, 2.0);
+
+    public static final ModConfigSpec.BooleanValue HIT_PARTICLES = BUILDER
+            .comment("Spark / ember particles on combo hits.")
+            .define("hitParticles", true);
+
+    public static final ModConfigSpec.BooleanValue FINISHER_FLASH = BUILDER
+            .comment("Ember flash at the screen edges on a combo finisher.")
+            .define("finisherFlash", true);
+
+    static {
+        BUILDER.pop();
     }
 
     public static final ModConfigSpec SPEC = BUILDER.build();

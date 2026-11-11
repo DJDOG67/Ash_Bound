@@ -18,5 +18,14 @@
   "ashbound.configuration.angle": "Pick Angle",
   "ashbound.configuration.angle.tooltip": "Only targets within this angle of the crosshair. Default 50.",
   "ashbound.configuration.showTargetBar": "Target Health Bar",
-  "ashbound.configuration.showTargetBar.tooltip": "Show target name and health at the top of the screen."
+  "ashbound.configuration.showTargetBar.tooltip": "Show target name and health at the top of the screen.",
+  "ashbound.configuration.effects": "Hit Feel & Effects",
+  "ashbound.configuration.comboHud": "Combo Pips",
+  "ashbound.configuration.comboHud.tooltip": "Show combo pips under the crosshair.",
+  "ashbound.configuration.screenShake": "Screen Shake",
+  "ashbound.configuration.screenShake.tooltip": "0 = off, 1 = default, 2 = heavy.",
+  "ashbound.configuration.hitParticles": "Hit Particles",
+  "ashbound.configuration.hitParticles.tooltip": "Sparks and embers on combo hits.",
+  "ashbound.configuration.finisherFlash": "Finisher Flash",
+  "ashbound.configuration.finisherFlash.tooltip": "Ember flash at the screen edges on a combo finisher."
 }

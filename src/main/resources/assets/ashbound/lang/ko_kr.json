@@ -18,5 +18,14 @@
   "ashbound.configuration.angle": "대상 선택 각도",
   "ashbound.configuration.angle.tooltip": "조준점에서 이 각도 안에 있는 적만 잡음. 기본 50",
   "ashbound.configuration.showTargetBar": "대상 체력바",
-  "ashbound.configuration.showTargetBar.tooltip": "화면 위쪽에 대상 이름과 체력 표시"
+  "ashbound.configuration.showTargetBar.tooltip": "화면 위쪽에 대상 이름과 체력 표시",
+  "ashbound.configuration.effects": "타격감과 이펙트",
+  "ashbound.configuration.comboHud": "콤보 표시",
+  "ashbound.configuration.comboHud.tooltip": "조준점 아래에 ◆◇◇ 콤보 단계 표시",
+  "ashbound.configuration.screenShake": "화면 흔들림",
+  "ashbound.configuration.screenShake.tooltip": "0 = 끔, 1 = 기본, 2 = 강하게",
+  "ashbound.configuration.hitParticles": "타격 파티클",
+  "ashbound.configuration.hitParticles.tooltip": "콤보 타격 시 불꽃·잿불 파티클",
+  "ashbound.configuration.finisherFlash": "피니셔 번쩍임",
+  "ashbound.configuration.finisherFlash.tooltip": "마지막 타에 화면 가장자리가 잿불색으로 번쩍임"
 }

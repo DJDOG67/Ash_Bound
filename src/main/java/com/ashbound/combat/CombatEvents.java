@@ -8,6 +8,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -49,7 +50,8 @@ public final class CombatEvents {
         event.registrar("1")
                 .playToServer(DodgePayloads.Request.TYPE, DodgePayloads.Request.STREAM_CODEC, CombatEvents::onDodgeRequest)
                 // client handler is registered in AshBoundClient
-                .playToClient(DodgePayloads.Start.TYPE, DodgePayloads.Start.STREAM_CODEC);
+                .playToClient(DodgePayloads.Start.TYPE, DodgePayloads.Start.STREAM_CODEC)
+                .playToClient(ComboHitPayload.TYPE, ComboHitPayload.STREAM_CODEC);
     }
 
     // ---------------------------------------------------------------- stamina
@@ -134,6 +136,7 @@ public final class CombatEvents {
         CombatState state = serverPlayer.getData(CombatAttachments.STATE);
         state.pendingDamageMultiplier = 1f;
         state.pendingFinisher = false;
+        state.pendingStep = 0;
 
         if (!serverPlayer.getMainHandItem().is(AshBoundItems.STRAIGHT_SWORDS)) {
             // plain weapon / fist: flat cost, no combo
@@ -154,23 +157,42 @@ public final class CombatEvents {
         state.comboTimer = balance.comboWindowTicks();
         state.pendingDamageMultiplier = balance.comboDamageMultipliers().get(step - 1);
         state.pendingFinisher = step == length && length > 1;
+        state.pendingStep = step;
+        state.pendingLength = length;
     }
 
-    /** Applies the combo multiplier / finisher to the hit the player just swung. */
+    /** Applies the combo multiplier / finisher to the hit the player just swung, plus sound and client effects. */
     private static void applyCombo(LivingIncomingDamageEvent event, ServerPlayer attacker) {
         CombatState state = attacker.getData(CombatAttachments.STATE);
+        if (state.pendingStep <= 0) {
+            return;
+        }
         if (state.pendingDamageMultiplier != 1f) {
             event.setAmount(event.getAmount() * state.pendingDamageMultiplier);
         }
+        LivingEntity target = event.getEntity();
         if (state.pendingFinisher) {
             float strength = CombatBalanceLoader.get().comboFinisherKnockback();
             float yaw = attacker.getYRot() * Mth.DEG_TO_RAD;
-            event.getEntity().knockback(strength, Mth.sin(yaw), -Mth.cos(yaw), event.getSource(), event.getAmount());
-            attacker.level().playSound(null, attacker.getX(), attacker.getY(), attacker.getZ(),
+            target.knockback(strength, Mth.sin(yaw), -Mth.cos(yaw), event.getSource(), event.getAmount());
+            attacker.level().playSound(null, target.getX(), target.getY(), target.getZ(),
                     SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 1.0f, 0.75f);
+            attacker.level().playSound(null, target.getX(), target.getY(), target.getZ(),
+                    SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 0.8f, 0.9f);
+        } else {
+            // pitch rises with each hit: 1st 1.3, 2nd 1.45, ...
+            attacker.level().playSound(null, target.getX(), target.getY(), target.getZ(),
+                    SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.6f, 1.3f + 0.15f * (state.pendingStep - 1));
         }
+
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(attacker, new ComboHitPayload(
+                attacker.getId(), state.pendingStep, state.pendingLength, state.pendingFinisher,
+                CombatBalanceLoader.get().comboWindowTicks(),
+                (float) target.getX(), (float) (target.getY() + target.getBbHeight() * 0.6), (float) target.getZ()));
+
         state.pendingDamageMultiplier = 1f;
         state.pendingFinisher = false;
+        state.pendingStep = 0;
     }
 
     // ---------------------------------------------------------------- i-frames
