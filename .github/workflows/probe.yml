@@ -9,10 +9,9 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '25' }
       - run: ./gradlew --no-daemon compileJava || true
+      # Usage: put the classes to inspect in CLASSES below, commit with "[probe]" in the message.
       - run: |
           J=$(find ~/.gradle build -name "*.jar" 2>/dev/null | while read f; do unzip -l "$f" 2>/dev/null | grep -q "net/minecraft/world/entity/LivingEntity.class" && echo "$f"; done | head -1)
           echo "JAR=$J"
-          C=$(unzip -l "$J" | grep -o "[^ ]*SwingAnimation[^ ]*\.class" | head -5); echo "$C"
-          for c in $C; do javap -cp "$J" "${c%.class}" | head -40; done
-          javap -cp "$J" net.minecraft.world.entity.LivingEntity | grep -i "swing"
-          javap -cp "$J" net.minecraft.world.item.ItemStack | grep -i "swing"
+          CLASSES="net.minecraft.world.entity.LivingEntity"
+          for c in $CLASSES; do javap -cp "$J" "$c"; done

@@ -8,6 +8,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.SwingAnimationType;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,6 +23,9 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * by a heavy attack: more pips = more damage, poise damage, knockback and spectacle.
  */
 public final class HeavyAttack {
+    /** Overhead "whack" swing, slower than the default so the heavy attack reads as heavy. */
+    private static final SwingAnimation HEAVY_SWING = new SwingAnimation(SwingAnimationType.WHACK, 10);
+
     private HeavyAttack() {
     }
 
@@ -82,7 +87,8 @@ public final class HeavyAttack {
         state.heavyCooldown = heavy.cooldownTicks();
         state.comboStep = 0; // a heavy attack ends any light combo
         state.comboTimer = 0;
-        player.swing(InteractionHand.MAIN_HAND, true);
+        // slow, weighty swing; also resets the vanilla attack meter so a light hit can't follow instantly
+        player.swingAndResetAttackStrength(InteractionHand.MAIN_HAND, HEAVY_SWING, true);
 
         LivingEntity target = validTarget(player, request.targetId());
         if (target == null) {
