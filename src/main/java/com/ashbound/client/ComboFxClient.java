@@ -208,6 +208,31 @@ public final class ComboFxClient {
                     flash(EMBER, 0.3f);
                 }
             }
+            case ImpactPayload.HEAVY -> {
+                int pips = impact.power();
+                if (particles) {
+                    level.addParticle(ParticleTypes.SWEEP_ATTACK, x, y, z, 0, 0, 0);
+                    for (int i = 0; i < 12 + pips * 10; i++) {
+                        level.addParticle(ParticleTypes.CRIT, x, y, z,
+                                RANDOM.nextGaussian() * 0.4, RANDOM.nextGaussian() * 0.3 + 0.1, RANDOM.nextGaussian() * 0.4);
+                    }
+                    for (int i = 0; i < pips * 8; i++) {
+                        level.addParticle(ParticleTypes.SMALL_FLAME, x, y, z,
+                                RANDOM.nextGaussian() * 0.18, RANDOM.nextDouble() * 0.18, RANDOM.nextGaussian() * 0.18);
+                    }
+                    if (pips >= 3) {
+                        for (int i = 0; i < 10; i++) {
+                            level.addParticle(ParticleTypes.LAVA, x, y, z, 0, 0, 0);
+                        }
+                    }
+                }
+                if (mine) {
+                    shake(1.4f + pips * 0.6f, 0.2f + pips * 0.05f);
+                    if (pips > 0) {
+                        flash(EMBER, 0.15f + pips * 0.07f);
+                    }
+                }
+            }
             default -> {
             }
         }

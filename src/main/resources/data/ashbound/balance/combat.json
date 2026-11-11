@@ -61,5 +61,60 @@
 
     "_finisher_knockback": "마지막 타(피니셔) 넉백 세기. 0이면 없음 | 기본 0.8, 추천 0.4~1.5",
     "finisher_knockback": 0.8
+  },
+
+  "_____ 강공격 (R키 꾹 눌렀다 떼기) _____": "",
+
+  "_heavy": "강공격은 집중 게이지를 전부 써서 칸 수만큼 강해짐. 아래 *_by_focus 목록은 [집중0칸, 1칸, 2칸, 3칸] 순서",
+  "heavy": {
+    "_stamina_cost": "강공격 1회 스태미나 소모 | 기본 25",
+    "stamina_cost": 25,
+
+    "_min_charge_ticks": "이 시간 이상 눌러야 강공격이 나감 (짧게 누르면 취소) | 기본 8틱 (0.4초)",
+    "min_charge_ticks": 8,
+
+    "_full_charge_ticks": "이 시간 이상 누르면 완전 충전 (피해 100%) | 기본 20틱 (1초)",
+    "full_charge_ticks": 20,
+
+    "_partial_charge_damage": "최소 충전으로 떼었을 때 피해 비율 (완전 충전 = 1.0) | 기본 0.7",
+    "partial_charge_damage": 0.7,
+
+    "_cooldown_ticks": "강공격 후 다음 강공격까지 최소 간격 | 기본 16틱 (0.8초)",
+    "cooldown_ticks": 16,
+
+    "_damage_by_focus": "무기 공격력 대비 피해 배율 [0칸, 1칸, 2칸, 3칸] | 기본 [1.6, 2.2, 3.0, 4.2]",
+    "damage_by_focus": [1.6, 2.2, 3.0, 4.2],
+
+    "_poise_by_focus": "자세 피해 배율 [0칸, 1칸, 2칸, 3칸] | 기본 [2, 3, 4, 6]",
+    "poise_by_focus": [2.0, 3.0, 4.0, 6.0],
+
+    "_knockback_by_focus": "넉백 세기 [0칸, 1칸, 2칸, 3칸] | 기본 [0.6, 0.8, 1.1, 1.6]",
+    "knockback_by_focus": [0.6, 0.8, 1.1, 1.6]
+  },
+
+  "_____ 집중 게이지 (오공식, ◆◆◆) _____": "",
+
+  "_focus": "잘 싸우면 차고 강공격에 전부 쓰는 게이지. 단위는 칸 (1.0 = 한 칸)",
+  "focus": {
+    "_max_pips": "최대 칸 수 | 기본 3",
+    "max_pips": 3,
+
+    "_per_combo_hit": "콤보 1·2타 적중 시 충전량 | 기본 0.25칸",
+    "per_combo_hit": 0.25,
+
+    "_per_finisher": "콤보 피니셔 적중 시 충전량 | 기본 0.5칸",
+    "per_finisher": 0.5,
+
+    "_per_parry": "패링 성공 시 충전량 | 기본 1.0칸",
+    "per_parry": 1.0,
+
+    "_per_riposte": "처형 일격 시 충전량 | 기본 0.5칸",
+    "per_riposte": 0.5,
+
+    "_decay_delay_ticks": "마지막으로 충전한 뒤 줄어들기 시작할 때까지 | 기본 200틱 (10초)",
+    "decay_delay_ticks": 200,
+
+    "_decay_per_second": "초당 감소량 | 기본 0.2칸",
+    "decay_per_second": 0.2
   }
 }

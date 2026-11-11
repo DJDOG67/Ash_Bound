@@ -32,6 +32,12 @@ public final class CombatAttachments {
     public static final Supplier<AttachmentType<PoiseState>> POISE_STATE = ATTACHMENT_TYPES.register("poise_state",
             () -> AttachmentType.builder(PoiseState::new).build());
 
+    /** Focus gauge + heavy charge timings, synced to the owning player. */
+    public static final Supplier<AttachmentType<FocusData>> FOCUS = ATTACHMENT_TYPES.register("focus",
+            () -> AttachmentType.builder(() -> FocusData.EMPTY)
+                    .sync((holder, to) -> holder == to, FocusData.STREAM_CODEC)
+                    .build());
+
     private CombatAttachments() {
     }
 }

@@ -28,5 +28,6 @@
   "ashbound.configuration.hitParticles.tooltip": "Sparks and embers on combo hits.",
   "ashbound.configuration.finisherFlash": "Finisher Flash",
   "ashbound.configuration.finisherFlash.tooltip": "Ember flash at the screen edges on a combo finisher.",
-  "ashbound.hud.staggered": "STAGGERED"
+  "ashbound.hud.staggered": "STAGGERED",
+  "key.ashbound.heavy_attack": "Heavy Attack (hold)"
 }

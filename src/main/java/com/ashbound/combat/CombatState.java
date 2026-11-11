@@ -30,4 +30,12 @@ public class CombatState {
     public int parryWindow;
     /** Ticks before raising the shield opens a new parry window. */
     public int parryCooldown;
+    /** Focus gauge in pips (1.0 = one pip). */
+    public float focus;
+    /** Ticks since focus was last gained (for decay). */
+    public int focusIdle;
+    /** Ticks before another heavy attack is accepted. */
+    public int heavyCooldown;
+    /** Poise multiplier for the heavy hit that is being dealt right now (1 = none). */
+    public float pendingHeavyPoise = 1f;
 }

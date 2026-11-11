@@ -50,6 +50,7 @@ public final class CombatEvents {
     static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
         event.registrar("1")
                 .playToServer(DodgePayloads.Request.TYPE, DodgePayloads.Request.STREAM_CODEC, CombatEvents::onDodgeRequest)
+                .playToServer(HeavyPayload.TYPE, HeavyPayload.STREAM_CODEC, HeavyAttack::onHeavyRequest)
                 // client handler is registered in AshBoundClient
                 .playToClient(DodgePayloads.Start.TYPE, DodgePayloads.Start.STREAM_CODEC)
                 .playToClient(ComboHitPayload.TYPE, ComboHitPayload.STREAM_CODEC)
@@ -121,6 +122,7 @@ public final class CombatEvents {
         if (current != stamina.current() || max != stamina.max()) {
             player.setData(CombatAttachments.STAMINA, new StaminaData(current, max));
         }
+        HeavyAttack.tick(player, state);
     }
 
     // ---------------------------------------------------------------- attack
@@ -196,6 +198,8 @@ public final class CombatEvents {
             return false;
         }
         boolean finisher = state.pendingFinisher;
+        FocusBalance focus = Balance.COMBAT.get().focus();
+        HeavyAttack.gainFocus(attacker, finisher ? focus.perFinisher() : focus.perComboHit());
         if (state.pendingDamageMultiplier != 1f) {
             event.setAmount(event.getAmount() * state.pendingDamageMultiplier);
         }
@@ -232,7 +236,7 @@ public final class CombatEvents {
      * 1. staggered attackers can't deal damage
      * 2. dodge i-frames
      * 3. parry
-     * 4. combo multiplier (player attacker)
+     * 4. heavy-attack poise bonus or combo multiplier (player attacker)
      * 5. riposte or poise damage
      */
     @SubscribeEvent
@@ -264,13 +268,18 @@ public final class CombatEvents {
         if (attacker == null) {
             return; // falls, fire, etc. don't touch poise
         }
-        // 4. combo (only real melee swings by a player)
-        boolean finisher = false;
+        // 4. heavy attack poise bonus, or combo multiplier (only real melee by a player)
+        float poiseMultiplier = 1f;
         if (event.getSource().getDirectEntity() instanceof ServerPlayer playerAttacker && attacker == playerAttacker) {
-            finisher = applyCombo(event, playerAttacker);
+            CombatState attackerState = playerAttacker.getData(CombatAttachments.STATE);
+            if (attackerState.pendingHeavyPoise != 1f) {
+                poiseMultiplier = attackerState.pendingHeavyPoise;
+            } else if (applyCombo(event, playerAttacker)) {
+                poiseMultiplier = Balance.POISE.get().finisherPoiseMultiplier();
+            }
         }
         // 5. riposte / poise
-        PoiseEvents.onHit(event, attacker, finisher);
+        PoiseEvents.onHit(event, attacker, poiseMultiplier);
     }
 
     // ---------------------------------------------------------------- dodge

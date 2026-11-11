@@ -62,8 +62,12 @@ public final class PoiseEvents {
         }
     }
 
-    private static void impact(LivingEntity causer, LivingEntity at, int kind) {
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(at, new ImpactPayload(causer.getId(), kind,
+    static void impact(LivingEntity causer, LivingEntity at, int kind) {
+        impact(causer, at, kind, 0);
+    }
+
+    static void impact(LivingEntity causer, LivingEntity at, int kind, int power) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(at, new ImpactPayload(causer.getId(), kind, power,
                 (float) at.getX(), (float) (at.getY() + at.getBbHeight() * 0.6), (float) at.getZ()));
     }
 
@@ -105,7 +109,7 @@ public final class PoiseEvents {
      * Called for every damage instance with a living attacker, after i-frames, parry and the combo multiplier.
      * Riposte on a staggered target, otherwise poise damage (and maybe a break).
      */
-    static void onHit(LivingIncomingDamageEvent event, LivingEntity attacker, boolean finisher) {
+    static void onHit(LivingIncomingDamageEvent event, LivingEntity attacker, float poiseMultiplier) {
         LivingEntity target = event.getEntity();
         PoiseBalance balance = Balance.POISE.get();
         PoiseState state = state(target);
@@ -122,13 +126,16 @@ public final class PoiseEvents {
             target.level().playSound(null, target.getX(), target.getY(), target.getZ(),
                     SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.0f, 0.7f);
             impact(attacker, target, ImpactPayload.RIPOSTE);
+            if (attacker instanceof ServerPlayer player) {
+                HeavyAttack.gainFocus(player, Balance.COMBAT.get().focus().perRiposte());
+            }
             return;
         }
         if (state.stagger > 0) {
             return; // mobs hitting a staggered target don't stack stagger
         }
 
-        float poiseDamage = event.getAmount() * balance.damageToPoise() * (finisher ? balance.finisherPoiseMultiplier() : 1f);
+        float poiseDamage = event.getAmount() * balance.damageToPoise() * poiseMultiplier;
         damagePoise(target, attacker, state, poiseDamage);
     }
 
@@ -192,6 +199,7 @@ public final class PoiseEvents {
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 0.8f, 1.4f);
         impact(player, player, ImpactPayload.PARRY);
+        HeavyAttack.gainFocus(player, Balance.COMBAT.get().focus().perParry());
         return true;
     }
 }

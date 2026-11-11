@@ -20,13 +20,15 @@ public record CombatBalance(
         int dodgeCooldownTicks,
         int chainWindowTicks,
         int chainLimit,
-        ComboBalance combo) {
+        ComboBalance combo,
+        HeavyBalance heavy,
+        FocusBalance focus) {
 
     public static final CombatBalance DEFAULT = new CombatBalance(
             100f, 20f, 12, 30,
             12f, 20f, 1.0f, 0.1f,
             6, 8, 20, 3,
-            ComboBalance.DEFAULT);
+            ComboBalance.DEFAULT, HeavyBalance.DEFAULT, FocusBalance.DEFAULT);
 
     public static final Codec<CombatBalance> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.FLOAT.optionalFieldOf("max_stamina", DEFAULT.maxStamina).forGetter(CombatBalance::maxStamina),
@@ -41,6 +43,8 @@ public record CombatBalance(
             Codec.INT.optionalFieldOf("dodge_cooldown_ticks", DEFAULT.dodgeCooldownTicks).forGetter(CombatBalance::dodgeCooldownTicks),
             Codec.INT.optionalFieldOf("chain_window_ticks", DEFAULT.chainWindowTicks).forGetter(CombatBalance::chainWindowTicks),
             Codec.INT.optionalFieldOf("chain_limit", DEFAULT.chainLimit).forGetter(CombatBalance::chainLimit),
-            ComboBalance.CODEC.optionalFieldOf("combo", DEFAULT.combo).forGetter(CombatBalance::combo)
+            ComboBalance.CODEC.optionalFieldOf("combo", DEFAULT.combo).forGetter(CombatBalance::combo),
+            HeavyBalance.CODEC.optionalFieldOf("heavy", DEFAULT.heavy).forGetter(CombatBalance::heavy),
+            FocusBalance.CODEC.optionalFieldOf("focus", DEFAULT.focus).forGetter(CombatBalance::focus)
     ).apply(i, CombatBalance::new));
 }

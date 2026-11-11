@@ -28,5 +28,6 @@
   "ashbound.configuration.hitParticles.tooltip": "콤보 타격 시 불꽃·잿불 파티클",
   "ashbound.configuration.finisherFlash": "피니셔 번쩍임",
   "ashbound.configuration.finisherFlash.tooltip": "마지막 타에 화면 가장자리가 잿불색으로 번쩍임",
-  "ashbound.hud.staggered": "그로기!"
+  "ashbound.hud.staggered": "그로기!",
+  "key.ashbound.heavy_attack": "강공격 (꾹 누르기)"
 }
