@@ -18,10 +18,13 @@
 | `dodge_cooldown_ticks` | 8 | 연속 구르기 최소 간격 (0.4초) |
 | `chain_window_ticks` | 20 | 연속 구르기로 묶이는 시간 창 (1초) |
 | `chain_limit` | 3 | 창 안에서 이 횟수를 넘기면 무적 시간 절반 (구르기 난사 방지) |
-| `combo_window_ticks` | 16 | 땅에서 이 시간 안에 다음 타를 맞히면 콤보 계속 (0.8초). 공중에서는 시간이 멈춤 → 점프 크리티컬 연계 가능 |
-| `combo_damage_multipliers` | [1.0, 1.1, 1.5] | 1·2·3타 피해 배율. 개수가 곧 콤보 타수 |
-| `combo_stamina_costs` | [12, 12, 18] | 1·2·3타 스태미나 소모 |
-| `combo_finisher_knockback` | 0.8 | 마지막 타 넉백 세기 |
+| `combo.window_grace_ticks` | 10 | 콤보 시간 = 무기 게이지 충전 시간 + 이 값 (0.5초). 직검은 약 1.1초 |
+| `combo.min_charge` | 0.9 | 게이지가 이 이상 찬 타만 콤보로 인정. 미만이면 일반 타 + 콤보 초기화 |
+| `combo.damage_multipliers` | [1.0, 1.1, 1.5] | 1·2·3타 피해 배율. 개수가 곧 콤보 타수. 크리티컬과 곱해짐 |
+| `combo.stamina_costs` | [12, 12, 18] | 1·2·3타 스태미나 소모 |
+| `combo.finisher_knockback` | 0.8 | 마지막 타 넉백 세기 |
+
+콤보 시간은 땅에 있을 때만 흐른다 (공중에서는 멈춤 → 점프 크리티컬 연계 가능).
 
 콤보는 `data/ashbound/tags/item/weapon_types/straight_sword.json` 태그에 들어간 무기에만 적용된다.
 다른 무기(바닐라 철검 등)를 직검 콤보로 쓰고 싶으면 이 태그 `values` 에 아이템 ID를 추가하면 된다.

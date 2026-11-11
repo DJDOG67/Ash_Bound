@@ -150,18 +150,34 @@ public final class CombatEvents {
         }
 
         // weapon combo: hit 1 -> 2 -> 3 while inside the combo window, then back to 1
-        int length = balance.comboLength();
+        ComboBalance combo = balance.combo();
+        boolean charged = serverPlayer.getAttackStrengthScale(0.5f) >= combo.minCharge();
+        if (!charged) {
+            // mashing before the attack meter fills: plain hit, combo resets
+            state.comboStep = 0;
+            state.comboTimer = 0;
+            if (!trySpend(serverPlayer, balance.attackCost())) {
+                event.setCanceled(true);
+            }
+            return;
+        }
+        int length = combo.length();
         int step = state.comboTimer > 0 ? (state.comboStep % length) + 1 : 1;
-        if (!trySpend(serverPlayer, balance.comboStaminaCosts().get(step - 1))) {
+        if (!trySpend(serverPlayer, combo.staminaCosts().get(step - 1))) {
             event.setCanceled(true);
             return;
         }
         state.comboStep = step;
-        state.comboTimer = balance.comboWindowTicks();
-        state.pendingDamageMultiplier = balance.comboDamageMultipliers().get(step - 1);
+        state.comboTimer = comboWindowTicks(serverPlayer, combo);
+        state.pendingDamageMultiplier = combo.damageMultipliers().get(step - 1);
         state.pendingFinisher = step == length && length > 1;
         state.pendingStep = step;
         state.pendingLength = length;
+    }
+
+    /** Window scales with the weapon: full vanilla charge time + grace. */
+    static int comboWindowTicks(ServerPlayer player, ComboBalance combo) {
+        return Math.round(player.getCurrentItemAttackStrengthDelay()) + combo.windowGraceTicks();
     }
 
     /** Applies the combo multiplier / finisher to the hit the player just swung, plus sound and client effects. */
@@ -175,7 +191,7 @@ public final class CombatEvents {
         }
         LivingEntity target = event.getEntity();
         if (state.pendingFinisher) {
-            float strength = CombatBalanceLoader.get().comboFinisherKnockback();
+            float strength = CombatBalanceLoader.get().combo().finisherKnockback();
             float yaw = attacker.getYRot() * Mth.DEG_TO_RAD;
             target.knockback(strength, Mth.sin(yaw), -Mth.cos(yaw), event.getSource(), event.getAmount());
             attacker.level().playSound(null, target.getX(), target.getY(), target.getZ(),
@@ -190,7 +206,7 @@ public final class CombatEvents {
 
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(attacker, new ComboHitPayload(
                 attacker.getId(), state.pendingStep, state.pendingLength, state.pendingFinisher,
-                CombatBalanceLoader.get().comboWindowTicks(),
+                state.comboTimer,
                 (float) target.getX(), (float) (target.getY() + target.getBbHeight() * 0.6), (float) target.getZ()));
 
         state.pendingDamageMultiplier = 1f;
