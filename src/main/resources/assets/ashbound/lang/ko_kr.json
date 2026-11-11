@@ -4,5 +4,8 @@
   "ashbound.configuration.combat": "전투 개편",
   "ashbound.configuration.machinery": "잿불 기관",
   "ashbound.configuration.farming": "농사와 가축",
-  "ashbound.configuration.factions": "세력과 생태계"
+  "ashbound.configuration.factions": "세력과 생태계",
+  "key.ashbound.dodge": "구르기",
+  "key.category.ashbound.combat": "Ash_Bound 전투",
+  "key.categories.ashbound.combat": "Ash_Bound 전투"
 }

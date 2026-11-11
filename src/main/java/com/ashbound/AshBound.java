@@ -2,6 +2,7 @@ package com.ashbound;
 
 import org.slf4j.Logger;
 
+import com.ashbound.combat.CombatAttachments;
 import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.IEventBus;
@@ -24,6 +25,8 @@ public class AshBound {
 
     public AshBound(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
+
+        CombatAttachments.ATTACHMENT_TYPES.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.LOCAL, AshBoundConfig.SPEC);
     }

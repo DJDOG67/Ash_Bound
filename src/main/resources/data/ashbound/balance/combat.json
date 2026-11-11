@@ -1,0 +1,16 @@
+{
+  "max_stamina": 100,
+  "regen_per_second": 20,
+  "regen_delay_ticks": 12,
+  "exhausted_delay_ticks": 30,
+
+  "attack_cost": 12,
+
+  "dodge_cost": 20,
+  "dodge_speed": 1.0,
+  "dodge_hop": 0.1,
+  "dodge_iframe_ticks": 6,
+  "dodge_cooldown_ticks": 8,
+  "chain_window_ticks": 20,
+  "chain_limit": 3
+}

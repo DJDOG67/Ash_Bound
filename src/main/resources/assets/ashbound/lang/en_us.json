@@ -4,5 +4,8 @@
   "ashbound.configuration.combat": "Combat Overhaul",
   "ashbound.configuration.machinery": "Ember Engineering",
   "ashbound.configuration.farming": "Farming & Livestock",
-  "ashbound.configuration.factions": "Factions & Ecosystem"
+  "ashbound.configuration.factions": "Factions & Ecosystem",
+  "key.ashbound.dodge": "Dodge Roll",
+  "key.category.ashbound.combat": "Ash_Bound Combat",
+  "key.categories.ashbound.combat": "Ash_Bound Combat"
 }
