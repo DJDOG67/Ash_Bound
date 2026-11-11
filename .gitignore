@@ -28,3 +28,9 @@ desktop.ini
 *.bak
 *~
 art/**/autosave/
+
+# From NeoForge MDK
+!gradle/wrapper/gradle-wrapper.jar
+.run/
+repo/
+**/src/generated/**/.cache/

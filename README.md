@@ -19,7 +19,7 @@ Ash_Bound/
 │  ├ models/        Blockbench .bbmodel 원본
 │  └ textures_src/  텍스처 원본 (.psd 등)
 ├ tools/       텍스처 변형 자동 생성 등 보조 스크립트
-└ src/main/    (NeoForge MDK 생성 후 추가)
+└ src/main/
    ├ java/        코드
    └ resources/
       ├ assets/   게임에 들어가는 텍스처·모델·애니메이션·번역
