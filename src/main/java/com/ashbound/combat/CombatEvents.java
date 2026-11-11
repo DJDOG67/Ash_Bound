@@ -165,7 +165,7 @@ public final class CombatEvents {
         if (state.pendingFinisher) {
             float strength = CombatBalanceLoader.get().comboFinisherKnockback();
             float yaw = attacker.getYRot() * Mth.DEG_TO_RAD;
-            event.getEntity().knockback(strength, Mth.sin(yaw), -Mth.cos(yaw));
+            event.getEntity().knockback(strength, Mth.sin(yaw), -Mth.cos(yaw), event.getSource(), event.getAmount());
             attacker.level().playSound(null, attacker.getX(), attacker.getY(), attacker.getZ(),
                     SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 1.0f, 0.75f);
         }
