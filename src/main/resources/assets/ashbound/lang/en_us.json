@@ -29,5 +29,7 @@
   "ashbound.configuration.finisherFlash": "Finisher Flash",
   "ashbound.configuration.finisherFlash.tooltip": "Ember flash at the screen edges on a combo finisher.",
   "ashbound.hud.staggered": "STAGGERED",
-  "key.ashbound.heavy_attack": "Heavy Attack (hold)"
+  "key.ashbound.heavy_attack": "Heavy Attack (hold)",
+  "key.ashbound.grab": "Grab / Throw",
+  "ashbound.hud.grab_hint": "%s Throw  ·  %s Slam"
 }

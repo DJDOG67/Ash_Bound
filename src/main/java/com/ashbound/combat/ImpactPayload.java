@@ -18,6 +18,14 @@ public record ImpactPayload(int causerId, int kind, int power, float x, float y,
     public static final int RIPOSTE = 2;
     /** A heavy attack landed. causer = the attacker, power = focus pips spent. */
     public static final int HEAVY = 3;
+    /** A grab caught something. causer = the grabbing player, power = hold ticks. */
+    public static final int GRAB = 4;
+    /** A thrown entity hit something or the ground. causer = the thrower. */
+    public static final int THROW_HIT = 5;
+    /** A held entity was slammed into the ground. causer = the player. */
+    public static final int SLAM = 6;
+    /** A held entity was thrown (or let go). causer = the player. */
+    public static final int THROW = 7;
 
     public static final Type<ImpactPayload> TYPE =
             new Type<>(Identifier.fromNamespaceAndPath(AshBound.MODID, "impact"));

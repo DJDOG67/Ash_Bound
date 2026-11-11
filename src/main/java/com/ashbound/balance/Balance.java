@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.ashbound.AshBound;
 import com.ashbound.combat.CombatBalance;
+import com.ashbound.combat.GrabBalance;
 import com.ashbound.combat.PoiseBalance;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
@@ -31,6 +32,7 @@ public final class Balance {
 
     public static final BalanceFile<CombatBalance> COMBAT = register("combat", CombatBalance.CODEC, CombatBalance.DEFAULT);
     public static final BalanceFile<PoiseBalance> POISE = register("poise", PoiseBalance.CODEC, PoiseBalance.DEFAULT);
+    public static final BalanceFile<GrabBalance> GRAB = register("grab", GrabBalance.CODEC, GrabBalance.DEFAULT);
 
     private Balance() {
     }

@@ -1,0 +1,11 @@
+{
+  "values": [
+    "minecraft:iron_golem",
+    "minecraft:ravager",
+    "minecraft:warden",
+    "minecraft:wither",
+    "minecraft:ender_dragon",
+    "minecraft:elder_guardian",
+    "minecraft:giant"
+  ]
+}

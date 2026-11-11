@@ -38,4 +38,14 @@ public class CombatState {
     public int heavyCooldown;
     /** Poise multiplier for the heavy hit that is being dealt right now (1 = none). */
     public float pendingHeavyPoise = 1f;
+    /** Entity id being held by a grab, -1 = none. */
+    public int grabbedId = -1;
+    /** Ticks left before the held entity is thrown automatically. */
+    public int grabTimer;
+    /** Ticks before another grab is accepted. */
+    public int grabCooldown;
+    /** Entity id currently flying from a throw, -1 = none. */
+    public int thrownId = -1;
+    /** Ticks since the throw started. */
+    public int thrownTicks;
 }

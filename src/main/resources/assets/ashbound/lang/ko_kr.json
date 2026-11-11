@@ -29,5 +29,7 @@
   "ashbound.configuration.finisherFlash": "피니셔 번쩍임",
   "ashbound.configuration.finisherFlash.tooltip": "마지막 타에 화면 가장자리가 잿불색으로 번쩍임",
   "ashbound.hud.staggered": "그로기!",
-  "key.ashbound.heavy_attack": "강공격 (꾹 누르기)"
+  "key.ashbound.heavy_attack": "강공격 (꾹 누르기)",
+  "key.ashbound.grab": "잡기 / 던지기",
+  "ashbound.hud.grab_hint": "%s 던지기  ·  %s 내려찍기"
 }

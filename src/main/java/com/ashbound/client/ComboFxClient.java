@@ -233,6 +233,62 @@ public final class ComboFxClient {
                     }
                 }
             }
+            case ImpactPayload.GRAB -> {
+                if (particles) {
+                    for (int i = 0; i < 6; i++) {
+                        level.addParticle(ParticleTypes.CRIT, x, y, z,
+                                RANDOM.nextGaussian() * 0.2, RANDOM.nextGaussian() * 0.2, RANDOM.nextGaussian() * 0.2);
+                    }
+                }
+                if (mine) {
+                    shake(0.8f, 0.12f);
+                    GrabClient.onGrabbed(impact.power());
+                }
+            }
+            case ImpactPayload.THROW -> {
+                if (mine) {
+                    GrabClient.onReleased();
+                    shake(0.6f, 0.1f);
+                }
+            }
+            case ImpactPayload.THROW_HIT -> {
+                if (particles) {
+                    for (int i = 0; i < 12; i++) {
+                        level.addParticle(ParticleTypes.CLOUD, x, y - 0.4, z,
+                                RANDOM.nextGaussian() * 0.1, RANDOM.nextDouble() * 0.06, RANDOM.nextGaussian() * 0.1);
+                    }
+                    for (int i = 0; i < 14; i++) {
+                        level.addParticle(ParticleTypes.CRIT, x, y, z,
+                                RANDOM.nextGaussian() * 0.35, RANDOM.nextGaussian() * 0.3, RANDOM.nextGaussian() * 0.35);
+                    }
+                }
+                if (mine) {
+                    shake(1.0f, 0.15f);
+                }
+            }
+            case ImpactPayload.SLAM -> {
+                if (particles) {
+                    // dust ring on the ground
+                    for (int i = 0; i < 24; i++) {
+                        double angle = i / 24.0 * Math.PI * 2;
+                        level.addParticle(ParticleTypes.CLOUD, x, y - 0.6, z,
+                                Math.cos(angle) * 0.25, 0.02, Math.sin(angle) * 0.25);
+                    }
+                    for (int i = 0; i < 24; i++) {
+                        level.addParticle(ParticleTypes.CRIT, x, y, z,
+                                RANDOM.nextGaussian() * 0.4, RANDOM.nextDouble() * 0.4, RANDOM.nextGaussian() * 0.4);
+                    }
+                    for (int i = 0; i < 10; i++) {
+                        level.addParticle(ParticleTypes.SMALL_FLAME, x, y - 0.3, z,
+                                RANDOM.nextGaussian() * 0.15, RANDOM.nextDouble() * 0.1, RANDOM.nextGaussian() * 0.15);
+                    }
+                }
+                if (mine) {
+                    GrabClient.onReleased();
+                    shake(2.6f, 0.3f);
+                    flash(EMBER, 0.25f);
+                }
+            }
             default -> {
             }
         }

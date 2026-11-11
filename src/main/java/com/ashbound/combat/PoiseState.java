@@ -9,4 +9,8 @@ public class PoiseState {
     public int regenDelay;
     /** Remaining stagger (groggy) ticks. 0 = not staggered. */
     public int stagger;
+    /** Ticks this entity is still held by a grab (frozen in place, can't attack). */
+    public int held;
+    /** Ticks this entity is still flying from a throw (can't attack, keeps its momentum). */
+    public int thrown;
 }

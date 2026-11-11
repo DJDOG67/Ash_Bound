@@ -55,6 +55,15 @@ public final class PoiseEvents {
         return entity.hasData(CombatAttachments.POISE_STATE) && entity.getData(CombatAttachments.POISE_STATE).stagger > 0;
     }
 
+    /** Staggered, held by a grab or flying from a throw: can't deal damage. */
+    public static boolean isDisabled(LivingEntity entity) {
+        if (!entity.hasData(CombatAttachments.POISE_STATE)) {
+            return false;
+        }
+        PoiseState state = entity.getData(CombatAttachments.POISE_STATE);
+        return state.stagger > 0 || state.held > 0 || state.thrown > 0;
+    }
+
     private static void sync(LivingEntity entity, PoiseState state) {
         PoiseData next = new PoiseData(Math.round(state.current), Math.round(state.max), state.stagger > 0);
         if (!next.equals(entity.getData(CombatAttachments.POISE))) {
@@ -84,6 +93,12 @@ public final class PoiseEvents {
         PoiseBalance balance = Balance.POISE.get();
         PoiseState state = entity.getData(CombatAttachments.POISE_STATE);
         state.max = maxPoise(entity); // follows /reload
+
+        if (state.held > 0) state.held--;
+        if (state.thrown > 0) state.thrown--;
+        if (state.held > 0 && entity instanceof Mob heldMob) {
+            heldMob.getNavigation().stop();
+        }
 
         if (state.stagger > 0) {
             state.stagger--;

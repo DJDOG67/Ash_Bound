@@ -51,6 +51,7 @@ public final class CombatEvents {
         event.registrar("1")
                 .playToServer(DodgePayloads.Request.TYPE, DodgePayloads.Request.STREAM_CODEC, CombatEvents::onDodgeRequest)
                 .playToServer(HeavyPayload.TYPE, HeavyPayload.STREAM_CODEC, HeavyAttack::onHeavyRequest)
+                .playToServer(GrabPayload.TYPE, GrabPayload.STREAM_CODEC, GrabAttack::onGrabRequest)
                 // client handler is registered in AshBoundClient
                 .playToClient(DodgePayloads.Start.TYPE, DodgePayloads.Start.STREAM_CODEC)
                 .playToClient(ComboHitPayload.TYPE, ComboHitPayload.STREAM_CODEC)
@@ -123,6 +124,7 @@ public final class CombatEvents {
             player.setData(CombatAttachments.STAMINA, new StaminaData(current, max));
         }
         HeavyAttack.tick(player, state);
+        GrabAttack.tick(player, state);
     }
 
     // ---------------------------------------------------------------- attack
@@ -233,7 +235,7 @@ public final class CombatEvents {
 
     /**
      * The whole melee pipeline, in a fixed order:
-     * 1. staggered attackers can't deal damage
+     * 1. staggered / held / thrown attackers can't deal damage
      * 2. dodge i-frames
      * 3. parry
      * 4. heavy-attack poise bonus or combo multiplier (player attacker)
@@ -249,7 +251,7 @@ public final class CombatEvents {
         LivingEntity attacker = event.getSource().getEntity() instanceof LivingEntity living ? living : null;
 
         // 1. groggy attackers whiff
-        if (attacker != null && !bypass && PoiseEvents.isStaggered(attacker)) {
+        if (attacker != null && !bypass && PoiseEvents.isDisabled(attacker)) {
             event.setCanceled(true);
             return;
         }
@@ -297,6 +299,7 @@ public final class CombatEvents {
         if (!trySpend(player, balance.dodgeCost())) {
             return;
         }
+        GrabAttack.release(player, state); // rolling lets go of whatever we hold
 
         // spamming dodges: after chain_limit dodges in the window, i-frames are halved
         int iframes = balance.dodgeIframeTicks();

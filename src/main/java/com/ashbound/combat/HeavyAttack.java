@@ -77,6 +77,10 @@ public final class HeavyAttack {
         }
         HeavyBalance heavy = Balance.COMBAT.get().heavy();
         CombatState state = player.getData(CombatAttachments.STATE);
+        if (state.grabbedId >= 0) {
+            GrabAttack.slam(player, state); // heavy while holding = slam, no charge needed
+            return;
+        }
         if (state.heavyCooldown > 0 || request.chargeTicks() < heavy.minChargeTicks()
                 || PoiseEvents.isStaggered(player) || !player.isAlive()) {
             return;

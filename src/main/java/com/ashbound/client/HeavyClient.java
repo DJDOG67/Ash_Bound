@@ -77,7 +77,7 @@ public final class HeavyClient {
     }
 
     /** Whatever is under the crosshair, or the lock-on target if the crosshair is off it. */
-    private static int pickTarget(Minecraft mc) {
+    static int pickTarget(Minecraft mc) {
         HitResult hit = mc.hitResult;
         if (hit instanceof EntityHitResult entityHit && entityHit.getEntity() instanceof LivingEntity living) {
             return living.getId();
