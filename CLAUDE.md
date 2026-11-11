@@ -4,6 +4,7 @@
 - 대상: Minecraft 26.3, NeoForge 26.3.x, Java 25. GeckoLib 5.x 사용 (패키지 `com.geckolib`, 1.21.1용 예제 코드는 그대로 쓰지 않는다).
 - 크리에이트 모드에 의존하지 않는다. 회전 동력은 `machinery` 패키지에 자체 구현.
 - 밸런스 수치는 `src/main/resources/data/ashbound/` JSON으로 뺀다. 하드코딩 금지.
+- 밸런스 JSON의 모든 값 바로 위에 `"_키이름": "한글 설명 | 기본값, 추천 범위"` 줄을 붙인다 (게임은 `_` 키를 무시).
 - `art/` 는 아트 원본, `assets/` 는 게임용 결과물. 아트 원본을 assets에 복사하지 않는다.
 - 결정이 바뀌면 `docs/decisions.md` 맨 위에 한 줄 추가한다.
 - 역할: 사용자 = 기획·스케치·모델 다듬기·테스트·수치, Claude = 코드·기술 파일·반복 변형 에셋.
