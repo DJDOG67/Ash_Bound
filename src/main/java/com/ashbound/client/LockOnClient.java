@@ -3,6 +3,8 @@ package com.ashbound.client;
 import java.util.Comparator;
 
 import com.ashbound.AshBound;
+import com.ashbound.combat.CombatAttachments;
+import com.ashbound.combat.PoiseData;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.DeltaTracker;
@@ -10,6 +12,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -154,5 +157,18 @@ public final class LockOnClient {
         graphics.centeredText(mc.font, target.getDisplayName(), width / 2, top - 11, 0xFFE8DCC0);
         graphics.fill(left - 1, top - 1, left + barWidth + 1, top + 4, 0xA0000000);
         graphics.fill(left, top, left + Math.round(barWidth * ratio), top + 3, 0xFFA8432B);
+
+        // poise bar (only once the target has been hit at least once)
+        PoiseData poise = target.getData(CombatAttachments.POISE);
+        if (poise.max() > 0) {
+            int poiseTop = top + 5;
+            graphics.fill(left - 1, poiseTop - 1, left + barWidth + 1, poiseTop + 2, 0xA0000000);
+            int color = poise.staggered() ? 0xFFE0742C : 0xFFC9A24A;
+            int filled = poise.staggered() ? barWidth : Math.round(barWidth * poise.ratio());
+            graphics.fill(left, poiseTop, left + filled, poiseTop + 1, color);
+            if (poise.staggered()) {
+                graphics.centeredText(mc.font, Component.translatable("ashbound.hud.staggered"), width / 2, poiseTop + 4, 0xFFE0742C);
+            }
+        }
     }
 }

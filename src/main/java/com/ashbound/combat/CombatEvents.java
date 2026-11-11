@@ -1,5 +1,6 @@
 package com.ashbound.combat;
 
+import com.ashbound.balance.Balance;
 import com.ashbound.AshBound;
 import com.ashbound.AshBoundConfig;
 
@@ -51,7 +52,8 @@ public final class CombatEvents {
                 .playToServer(DodgePayloads.Request.TYPE, DodgePayloads.Request.STREAM_CODEC, CombatEvents::onDodgeRequest)
                 // client handler is registered in AshBoundClient
                 .playToClient(DodgePayloads.Start.TYPE, DodgePayloads.Start.STREAM_CODEC)
-                .playToClient(ComboHitPayload.TYPE, ComboHitPayload.STREAM_CODEC);
+                .playToClient(ComboHitPayload.TYPE, ComboHitPayload.STREAM_CODEC)
+                .playToClient(ImpactPayload.TYPE, ImpactPayload.STREAM_CODEC);
     }
 
     // ---------------------------------------------------------------- stamina
@@ -61,7 +63,7 @@ public final class CombatEvents {
         if (ignoresStamina(player)) {
             return true;
         }
-        CombatBalance balance = CombatBalanceLoader.get();
+        CombatBalance balance = Balance.COMBAT.get();
         StaminaData stamina = player.getData(CombatAttachments.STAMINA);
         if (stamina.current() <= 0f) {
             return false;
@@ -83,10 +85,12 @@ public final class CombatEvents {
         if (!(event.getEntity() instanceof ServerPlayer player) || !enabled()) {
             return;
         }
-        CombatBalance balance = CombatBalanceLoader.get();
+        CombatBalance balance = Balance.COMBAT.get();
         CombatState state = player.getData(CombatAttachments.STATE);
 
         if (state.iframes > 0) state.iframes--;
+        if (state.parryWindow > 0) state.parryWindow--;
+        if (state.parryCooldown > 0) state.parryCooldown--;
         if (state.dodgeCooldown > 0) state.dodgeCooldown--;
         if (state.chainTimer > 0) {
             state.chainTimer--;
@@ -135,7 +139,11 @@ public final class CombatEvents {
             return;
         }
 
-        CombatBalance balance = CombatBalanceLoader.get();
+        if (PoiseEvents.isStaggered(serverPlayer)) {
+            event.setCanceled(true); // groggy: can't swing
+            return;
+        }
+        CombatBalance balance = Balance.COMBAT.get();
         CombatState state = serverPlayer.getData(CombatAttachments.STATE);
         state.pendingDamageMultiplier = 1f;
         state.pendingFinisher = false;
@@ -181,17 +189,19 @@ public final class CombatEvents {
     }
 
     /** Applies the combo multiplier / finisher to the hit the player just swung, plus sound and client effects. */
-    private static void applyCombo(LivingIncomingDamageEvent event, ServerPlayer attacker) {
+    /** @return true if this hit was a combo finisher */
+    private static boolean applyCombo(LivingIncomingDamageEvent event, ServerPlayer attacker) {
         CombatState state = attacker.getData(CombatAttachments.STATE);
         if (state.pendingStep <= 0) {
-            return;
+            return false;
         }
+        boolean finisher = state.pendingFinisher;
         if (state.pendingDamageMultiplier != 1f) {
             event.setAmount(event.getAmount() * state.pendingDamageMultiplier);
         }
         LivingEntity target = event.getEntity();
         if (state.pendingFinisher) {
-            float strength = CombatBalanceLoader.get().combo().finisherKnockback();
+            float strength = Balance.COMBAT.get().combo().finisherKnockback();
             float yaw = attacker.getYRot() * Mth.DEG_TO_RAD;
             target.knockback(strength, Mth.sin(yaw), -Mth.cos(yaw), event.getSource(), event.getAmount());
             attacker.level().playSound(null, target.getX(), target.getY(), target.getZ(),
@@ -212,30 +222,55 @@ public final class CombatEvents {
         state.pendingDamageMultiplier = 1f;
         state.pendingFinisher = false;
         state.pendingStep = 0;
+        return finisher;
     }
 
     // ---------------------------------------------------------------- i-frames
 
+    /**
+     * The whole melee pipeline, in a fixed order:
+     * 1. staggered attackers can't deal damage
+     * 2. dodge i-frames
+     * 3. parry
+     * 4. combo multiplier (player attacker)
+     * 5. riposte or poise damage
+     */
     @SubscribeEvent
     static void onIncomingDamage(LivingIncomingDamageEvent event) {
         if (!enabled()) {
             return;
         }
-        // outgoing: a player's melee hit -> combo multiplier
-        if (event.getSource().getDirectEntity() instanceof ServerPlayer attacker
-                && event.getSource().getEntity() == attacker) {
-            applyCombo(event, attacker);
-        }
-        // incoming: dodge i-frames
-        if (!(event.getEntity() instanceof ServerPlayer player)) {
+        LivingEntity target = event.getEntity();
+        boolean bypass = event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY); // void, /kill
+        LivingEntity attacker = event.getSource().getEntity() instanceof LivingEntity living ? living : null;
+
+        // 1. groggy attackers whiff
+        if (attacker != null && !bypass && PoiseEvents.isStaggered(attacker)) {
+            event.setCanceled(true);
             return;
         }
-        if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return; // void, /kill
+        if (target instanceof ServerPlayer player && !bypass) {
+            // 2. dodge i-frames
+            if (player.getData(CombatAttachments.STATE).iframes > 0) {
+                event.setCanceled(true);
+                return;
+            }
+            // 3. parry
+            if (PoiseEvents.tryParry(event, player)) {
+                event.setCanceled(true);
+                return;
+            }
         }
-        if (player.getData(CombatAttachments.STATE).iframes > 0) {
-            event.setCanceled(true);
+        if (attacker == null) {
+            return; // falls, fire, etc. don't touch poise
         }
+        // 4. combo (only real melee swings by a player)
+        boolean finisher = false;
+        if (event.getSource().getDirectEntity() instanceof ServerPlayer playerAttacker && attacker == playerAttacker) {
+            finisher = applyCombo(event, playerAttacker);
+        }
+        // 5. riposte / poise
+        PoiseEvents.onHit(event, attacker, finisher);
     }
 
     // ---------------------------------------------------------------- dodge
@@ -244,10 +279,10 @@ public final class CombatEvents {
         if (!(context.player() instanceof ServerPlayer player) || !enabled()) {
             return;
         }
-        CombatBalance balance = CombatBalanceLoader.get();
+        CombatBalance balance = Balance.COMBAT.get();
         CombatState state = player.getData(CombatAttachments.STATE);
 
-        if (state.dodgeCooldown > 0 || !player.onGround() || player.isPassenger()) {
+        if (state.dodgeCooldown > 0 || !player.onGround() || player.isPassenger() || PoiseEvents.isStaggered(player)) {
             return;
         }
         if (!trySpend(player, balance.dodgeCost())) {

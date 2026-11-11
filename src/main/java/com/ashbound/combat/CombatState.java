@@ -26,4 +26,8 @@ public class CombatState {
     /** Combo step / length of the attack that is about to land (0 = not a combo weapon). */
     public int pendingStep;
     public int pendingLength;
+    /** Ticks left in which a hit is parried (opened when the shield is raised). */
+    public int parryWindow;
+    /** Ticks before raising the shield opens a new parry window. */
+    public int parryCooldown;
 }

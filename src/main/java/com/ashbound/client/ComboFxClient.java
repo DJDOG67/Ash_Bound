@@ -2,6 +2,7 @@ package com.ashbound.client;
 
 import com.ashbound.AshBound;
 import com.ashbound.combat.ComboHitPayload;
+import com.ashbound.combat.ImpactPayload;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -56,10 +57,13 @@ public final class ComboFxClient {
     private static float shakeDeg;
 
     private static long flashStartNanos;
+    private static int flashColor = EMBER;
+    private static float flashSec = FLASH_SEC;
 
     @SubscribeEvent
     static void onRegisterClientPayloads(RegisterClientPayloadHandlersEvent event) {
         event.register(ComboHitPayload.TYPE, ComboFxClient::onComboHit);
+        event.register(ImpactPayload.TYPE, ComboFxClient::onImpact);
     }
 
     @SubscribeEvent
@@ -99,8 +103,8 @@ public final class ComboFxClient {
             shakeSec = hit.finisher() ? SHAKE_FINISHER_SEC : SHAKE_HIT_SEC;
             shakeDeg = (hit.finisher() ? SHAKE_FINISHER_DEG : SHAKE_HIT_DEG * hit.step()) * shakeScale;
         }
-        if (hit.finisher() && AshBoundClientConfig.FINISHER_FLASH.get()) {
-            flashStartNanos = now;
+        if (hit.finisher()) {
+            flash(EMBER, FLASH_SEC);
         }
     }
 
@@ -115,6 +119,96 @@ public final class ComboFxClient {
             for (int i = 0; i < 10; i++) {
                 level.addParticle(ParticleTypes.SMALL_FLAME, hit.x(), hit.y(), hit.z(),
                         RANDOM.nextGaussian() * 0.12, RANDOM.nextDouble() * 0.12, RANDOM.nextGaussian() * 0.12);
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------- shared effect helpers
+
+    private static void shake(float degrees, float seconds) {
+        float scale = AshBoundClientConfig.SCREEN_SHAKE.get().floatValue();
+        if (scale <= 0f) {
+            return;
+        }
+        shakeStartNanos = System.nanoTime();
+        shakeSec = seconds;
+        shakeDeg = degrees * scale;
+    }
+
+    private static void flash(int rgb, float seconds) {
+        if (!AshBoundClientConfig.FINISHER_FLASH.get()) {
+            return;
+        }
+        flashStartNanos = System.nanoTime();
+        flashColor = rgb;
+        flashSec = seconds;
+    }
+
+    // ---------------------------------------------------------------- parry / poise break / riposte
+
+    private static final int PARRY_WHITE = 0xF2EEE4;
+
+    private static void onImpact(ImpactPayload impact, IPayloadContext context) {
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        ClientLevel level = mc.level;
+        if (player == null || level == null) {
+            return;
+        }
+        boolean mine = impact.causerId() == player.getId();
+        boolean particles = AshBoundClientConfig.HIT_PARTICLES.get();
+        double x = impact.x(), y = impact.y(), z = impact.z();
+
+        switch (impact.kind()) {
+            case ImpactPayload.PARRY -> {
+                if (particles) {
+                    for (int i = 0; i < 14; i++) {
+                        level.addParticle(ParticleTypes.ELECTRIC_SPARK, x, y, z,
+                                RANDOM.nextGaussian() * 0.4, RANDOM.nextGaussian() * 0.3 + 0.1, RANDOM.nextGaussian() * 0.4);
+                    }
+                    for (int i = 0; i < 8; i++) {
+                        level.addParticle(ParticleTypes.CRIT, x, y, z,
+                                RANDOM.nextGaussian() * 0.3, RANDOM.nextGaussian() * 0.3, RANDOM.nextGaussian() * 0.3);
+                    }
+                }
+                if (mine) {
+                    shake(1.2f, 0.15f);
+                    flash(PARRY_WHITE, 0.15f);
+                }
+            }
+            case ImpactPayload.POISE_BREAK -> {
+                if (particles) {
+                    for (int i = 0; i < 10; i++) {
+                        level.addParticle(ParticleTypes.CLOUD, x, y, z,
+                                RANDOM.nextGaussian() * 0.08, RANDOM.nextDouble() * 0.08, RANDOM.nextGaussian() * 0.08);
+                    }
+                    for (int i = 0; i < 16; i++) {
+                        level.addParticle(ParticleTypes.CRIT, x, y + 0.4, z,
+                                RANDOM.nextGaussian() * 0.25, RANDOM.nextDouble() * 0.3, RANDOM.nextGaussian() * 0.25);
+                    }
+                }
+                if (mine) {
+                    shake(1.0f, 0.18f);
+                }
+            }
+            case ImpactPayload.RIPOSTE -> {
+                if (particles) {
+                    level.addParticle(ParticleTypes.SWEEP_ATTACK, x, y, z, 0, 0, 0);
+                    for (int i = 0; i < 30; i++) {
+                        level.addParticle(ParticleTypes.CRIT, x, y, z,
+                                RANDOM.nextGaussian() * 0.45, RANDOM.nextGaussian() * 0.35 + 0.1, RANDOM.nextGaussian() * 0.45);
+                    }
+                    for (int i = 0; i < 18; i++) {
+                        level.addParticle(ParticleTypes.SMALL_FLAME, x, y, z,
+                                RANDOM.nextGaussian() * 0.15, RANDOM.nextDouble() * 0.15, RANDOM.nextGaussian() * 0.15);
+                    }
+                }
+                if (mine) {
+                    shake(2.4f, 0.3f);
+                    flash(EMBER, 0.3f);
+                }
+            }
+            default -> {
             }
         }
     }
@@ -200,15 +294,15 @@ public final class ComboFxClient {
             return;
         }
         float elapsed = (now - flashStartNanos) / 1.0e9f;
-        if (elapsed >= FLASH_SEC) {
+        if (elapsed >= flashSec) {
             flashStartNanos = 0;
             return;
         }
-        float fade = 1f - elapsed / FLASH_SEC;
+        float fade = 1f - elapsed / flashSec;
         // edge vignette: a few bands, stronger at the very edge
         for (int band = 0; band < 6; band++) {
             int a = (int) (fade * 110 * (1f - band / 6f));
-            int color = argb(a, EMBER);
+            int color = argb(a, flashColor);
             int t = band * 4;
             int thickness = 4;
             graphics.fill(t, t, width - t, t + thickness, color);                       // top
